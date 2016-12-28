@@ -38,8 +38,15 @@ func randWhiteSpace(s string, i int, r int64) string {
 	return strings.TrimSpace(buffer.String())
 }
 
+func tabbify(s string) string {
+	r := strings.NewReplacer(" ", "	")
+	t := r.Replace(s)
+	return t
+}
+
 func main() {
 	i := flag.Int("i", 6, "Max Whitespace")
+	tabs := flag.Bool("t", false, "Tabbify instead of spaces")
 	flag.Parse()
 	a := flag.Args()
 	if flag.NArg() == 0 {
@@ -48,5 +55,9 @@ func main() {
 	}
 	s := arrayJoin(a)
 	annoying := randWhiteSpace(s, *i, 0)
-	fmt.Println(annoying)
+	if *tabs {
+		fmt.Println(tabbify(annoying))
+	} else {
+		fmt.Println(annoying)
+	}
 }
