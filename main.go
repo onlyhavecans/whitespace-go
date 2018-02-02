@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+// arrayJoin take an array of strings and return a single one
 func arrayJoin(a []string) string {
 	var buffer bytes.Buffer
 	for _, v := range a {
@@ -18,6 +19,7 @@ func arrayJoin(a []string) string {
 	return buffer.String()
 }
 
+// randWhiteSpace takes a string, max whitespace between, and an optional random seed and inserts random whitespace
 func randWhiteSpace(s string, i int, r int64) string {
 	if r == 0 {
 		r = time.Now().UnixNano()
@@ -38,6 +40,7 @@ func randWhiteSpace(s string, i int, r int64) string {
 	return strings.TrimSpace(buffer.String())
 }
 
+// tabbify replaces all spaces in a string with tabs
 func tabbify(s string) string {
 	r := strings.NewReplacer(" ", "	")
 	t := r.Replace(s)
@@ -47,6 +50,7 @@ func tabbify(s string) string {
 func main() {
 	i := flag.Int("i", 6, "Max Whitespace")
 	tabs := flag.Bool("t", false, "Tabbify instead of spaces")
+	upper := flag.Bool("u", false, "Uppercase Everything")
 	flag.Parse()
 	a := flag.Args()
 	if flag.NArg() == 0 {
@@ -55,6 +59,9 @@ func main() {
 	}
 	s := arrayJoin(a)
 	annoying := randWhiteSpace(s, *i, 0)
+	if *upper {
+		annoying = strings.ToUpper(annoying)
+	}
 	if *tabs {
 		fmt.Println(tabbify(annoying))
 	} else {
