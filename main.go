@@ -2,13 +2,56 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"math/rand"
 	"os"
 	"strings"
 	"time"
 )
+
+const (
+	exitFail = 1
+)
+
+func main() {
+	if err := run(os.Args, os.Stdout); err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(exitFail)
+	}
+}
+
+// run is a testable version of main
+func run(args []string, stdout io.Writer) error {
+	flags := flag.NewFlagSet(args[0], flag.ExitOnError)
+	var (
+		i     = flags.Int("i", 6, "Max Whitespace")
+		tabs  = flags.Bool("t", false, "Tabbify instead of spaces")
+		upper = flags.Bool("u", false, "Uppercase Everything")
+	)
+	if err := flags.Parse(args[1:]); err != nil {
+		return err
+	}
+	a := flags.Args()
+	if flags.NArg() == 0 {
+		return errors.New("you must provide a string to whitespace")
+	}
+
+	s := arrayJoin(a)
+	annoying := randWhiteSpace(s, *i, 0)
+
+	if *upper {
+		annoying = strings.ToUpper(annoying)
+	}
+	if *tabs {
+		annoying = tabbify(annoying)
+	}
+
+	_, _ = fmt.Fprint(stdout, annoying)
+	return nil
+}
 
 // arrayJoin take an array of strings and return a single one
 func arrayJoin(a []string) string {
@@ -45,26 +88,4 @@ func tabbify(s string) string {
 	r := strings.NewReplacer(" ", "	")
 	t := r.Replace(s)
 	return t
-}
-
-func main() {
-	i := flag.Int("i", 6, "Max Whitespace")
-	tabs := flag.Bool("t", false, "Tabbify instead of spaces")
-	upper := flag.Bool("u", false, "Uppercase Everything")
-	flag.Parse()
-	a := flag.Args()
-	if flag.NArg() == 0 {
-		fmt.Println("provide a string to whitespace")
-		os.Exit(1)
-	}
-	s := arrayJoin(a)
-	annoying := randWhiteSpace(s, *i, 0)
-	if *upper {
-		annoying = strings.ToUpper(annoying)
-	}
-	if *tabs {
-		fmt.Println(tabbify(annoying))
-	} else {
-		fmt.Println(annoying)
-	}
 }
